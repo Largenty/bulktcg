@@ -1,0 +1,77 @@
+/* Autour des photos : le filigrane de la photo en grand, et les dos de carte
+   qui tiennent la place d'une photo absente. */
+
+@layer components {
+
+/* ---------- emplacement d'une photo ----------
+   Un <span> (ListingImage) : la miniature d'une galerie est un bouton, qui
+   n'admet que du contenu phrasé. Il se comporte en bloc, et dans cette
+   couche, une classe utilitaire — hidden, sm:block — garde le dernier mot. */
+
+.photo-frame {
+  display: block;
+}
+
+/* ---------- filigrane de la photo en grand ----------
+   Sur la fiche, la même ligne de crédit que sur la vignette, avec la
+   référence de l'annonce en plus. Le fond est assez opaque pour tenir le
+   contraste même sur une photo blanche : c'est le pire cas, et
+   tests/contrast.test.mjs le mesure. */
+
+.watermark-strip {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  background: var(--watermark-bg);
+  color: var(--watermark-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* Le pseudo garde sa casse : « @lecomptoirdukado » se lit, « @LECOMPTOIR… »
+   se crie, et ce n'est plus tout à fait le nom qu'on retrouve sur la fiche. */
+.watermark {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- dos de carte ----------
+   L'emplacement d'une photo absente ou en chargement : des dos de carte
+   pleins, à la couleur du jeu — franche, pas un pastel. Le format est celui
+   d'une carte (63 × 88 mm), le motif central l'ovale qu'on retrouve au dos
+   de presque tous les JCC. Le liseré reste blanc dans les deux thèmes : une
+   carte imprimée ne change pas avec la lumière de la pièce. */
+
+.card-back {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 42%;
+  aspect-ratio: 63 / 88;
+  border-radius: 8% / 6%;
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--print-white) 70%, transparent),
+    0 8px 16px -8px rgb(10 12 16 / 0.6);
+}
+@media (min-width: 640px) {
+  .lot-window .card-back {
+    width: 30%;
+  }
+}
+.card-back:last-child::after {
+  content: "";
+  position: absolute;
+  inset: 22% 20%;
+  border: var(--border-width-strong) solid color-mix(in srgb, var(--print-white) 75%, transparent);
+  border-radius: 50%;
+}
+
+}

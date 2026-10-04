@@ -1,0 +1,343 @@
+/* La vignette d'un lot, d'abord sur téléphone — horizontale, miniature à
+   gauche. Le grand écran la redresse : voir lot-wide.css. */
+
+@layer components {
+
+/* ---------- la vignette : une étiquette de carte gradée ----------
+
+   Chaque lot se lit comme une carte dans son boîtier : en tête la ligne de
+   type (jeu et format) et, à droite, le coût — le prix en pavé d'encre ;
+   puis le titre, la fenêtre de la photo, les faits, les séries, et le pied.
+
+   Le DOM suit l'ordre de lecture d'un lecteur d'écran — titre, prix, type,
+   faits, lieu, vendeur — et la grille le range dans l'ordre d'une carte.
+   Verticale en grand écran ; horizontale sur téléphone, miniature carrée à
+   gauche et le prix posé dans son coin, cinq lots par écran au lieu d'un et
+   demi. Le prix est positionné par calcul plutôt que rendu deux fois :
+   deux prix dans le DOM, c'est deux prix pour un lecteur d'écran. */
+
+.lot {
+  --lot-pad: 10px;
+  --lot-thumb: 104px;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--lot-thumb) minmax(0, 1fr);
+  grid-template-areas:
+    "window type"
+    "window title"
+    "window facts"
+    "window foot";
+  grid-template-rows: auto auto auto 1fr;
+  align-content: start;
+  column-gap: 12px;
+  row-gap: 5px;
+  padding: var(--lot-pad);
+  background: var(--card);
+  border: var(--border-width-strong) solid var(--frame);
+  border-radius: var(--radius-lg);
+  transition:
+    transform var(--duration-base) ease-out,
+    box-shadow var(--duration-base) ease-out;
+}
+.lot:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+.lot-type {
+  grid-area: type;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-variation-settings: "wdth" 54;
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}
+.lot-type-text {
+  min-width: 0;
+}
+.lot-mark {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px rgb(10 12 16 / 0.18);
+}
+
+/* L'aperçu d'un dépôt, avant que le jeu ou le format soient choisis : un
+   carré vide et un libellé en attente, jamais une valeur supposée. */
+.lot-mark-empty {
+  box-shadow: inset 0 0 0 var(--border-width) var(--muted);
+}
+.lot-gap {
+  color: var(--muted);
+}
+
+.lot-price {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--lot-pad) + var(--lot-thumb) - 4px);
+  top: calc(var(--lot-pad) + var(--lot-thumb) - 4px);
+  translate: -100% -100%;
+  box-shadow: 0 0 0 2px var(--card);
+  font-size: var(--text-md);
+}
+
+.lot-title {
+  grid-area: title;
+  font-size: var(--text-md);
+  font-weight: 650;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+/* Le lien couvre toute la vignette : une seule tabulation par lot. */
+.lot-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+.lot-window {
+  grid-area: window;
+  position: relative;
+  align-self: start;
+  width: var(--lot-thumb);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--tint);
+  box-shadow: 0 0 0 var(--border-width) rgb(10 12 16 / 0.14);
+}
+/* Au survol, un reflet traverse l'acrylique. */
+.lot-gloss {
+  position: absolute;
+  inset: -20% -60%;
+  z-index: 1;
+  background: linear-gradient(110deg, transparent 40%, rgb(255 255 255 / 0.28) 50%, transparent 60%);
+  translate: -120% 0;
+  transition: translate 700ms ease-out;
+  pointer-events: none;
+}
+.lot:hover .lot-gloss {
+  translate: 120% 0;
+}
+.lot:hover .seal {
+  background-position: 100% 0, 0 0;
+}
+
+/* Ce qui se pose sur la fenêtre : sceau, baisse, onglet pro, tampon. */
+.lot-window-seal {
+  position: absolute;
+  z-index: 2;
+  top: 5px;
+  left: 5px;
+  rotate: -4deg;
+}
+.lot-window-stamp {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 30%;
+  translate: -50% -50%;
+}
+.lot-window-flags,
+.lot-window-pro {
+  display: none;
+}
+/* Dans la ligne de type du téléphone, l'étiquette se range à plat. */
+.lot-type-urgent {
+  margin-left: 4px;
+  padding: 3px 5px 2px;
+  rotate: none;
+  box-shadow: none;
+}
+/* Dans la miniature de 104 px, le sceau et le tampon se font petits. */
+.lot-window-seal {
+  padding: 4px 5px 3px;
+  font-variation-settings: "wdth" 84;
+  letter-spacing: 0.05em;
+}
+.lot-window-stamp {
+  padding: 4px 6px 3px;
+  border-width: 2px;
+  box-shadow: inset 0 0 0 1px var(--stamp-bg), inset 0 0 0 2px currentColor;
+  font-variation-settings: "wdth" 84;
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  rotate: -6deg;
+}
+/* « Sans photo » en toutes lettres, au-dessus de la ligne de crédit : sans
+   la mention, on attend une image qui ne viendra pas. Pas dans le coin haut,
+   où le sceau « À la une » la recouvrait. La miniature n'a pas la place. */
+.lot-window-empty {
+  position: absolute;
+  z-index: 2;
+  bottom: 36px;
+  left: 10px;
+  display: none;
+  padding: 5px 7px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--ink-soft);
+  box-shadow: 0 0 0 var(--border-width) var(--line-strong);
+}
+
+.lot-facts {
+  grid-area: facts;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 4px;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.lot-facts > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+/* Sur téléphone, les faits se suivent sur une ligne : le séparateur est
+   accroché au fait précédent, un retour à la ligne ne tombe jamais au
+   milieu d'une valeur. */
+.lot-facts > div:not(:last-child)::after {
+  content: "\00a0·\00a0";
+  color: var(--muted);
+}
+
+/* La jauge d'état : cinq crans, de Très joué à Near Mint. Aucune pour
+   « Mixte » ni « Scellé », qui ne sont pas des degrés. */
+.meter {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 2px;
+}
+.meter > i {
+  width: 4px;
+  height: 11px;
+  border-radius: 1px;
+  background: var(--line);
+}
+.meter > i[data-on] {
+  background: var(--ink);
+}
+
+.lot-sets {
+  grid-area: sets;
+  display: none;
+}
+
+.lot-foot {
+  grid-area: foot;
+  align-self: start;
+  font-size: var(--text-xs);
+  line-height: 1.35;
+  color: var(--muted);
+}
+.lot-foot b {
+  color: var(--ink);
+  font-weight: 700;
+}
+.lot-foot s {
+  text-decoration-thickness: 1.5px;
+}
+.lot-foot > span {
+  white-space: nowrap;
+}
+/* Ouvert à l'échange : une condition de la vente, en encre et en gras pour
+   se repérer dans une rangée, l'icône alignée sur la ligne de texte. */
+.lot-foot > .lot-trade {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  font-weight: 700;
+}
+/* Sur téléphone, le pied est une ligne : « Avignon · à 12 km · 4 h ». En
+   grand écran le lieu est à gauche, l'âge à droite, sans séparateur. */
+.lot-foot > span + span::before {
+  content: "·\00a0";
+}
+
+/* La ligne de crédit : le filigrane devient la ligne « Illus. » d'une carte,
+   et porte le vendeur et sa note. Absente des miniatures, où elle serait
+   illisible et couvrirait la moitié de l'image. */
+.credit {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--watermark-bg);
+  color: var(--watermark-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.credit-rating {
+  flex: none;
+  margin-left: auto;
+  padding-left: 4px;
+  color: var(--watermark-ink-soft);
+}
+.credit-rating b {
+  color: var(--watermark-ink);
+  font-weight: 700;
+}
+.credit-pro {
+  flex: none;
+  padding: 2px 4px 1px;
+  border: var(--border-width) solid var(--watermark-ink-soft);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* À la une : une bande holographique sur le bord — gauche sur téléphone,
+   haut en grand écran — et le sceau sur la photo. Aucun texte sur la bande. */
+.lot-featured::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: calc(-1 * var(--border-width-strong));
+  bottom: calc(-1 * var(--border-width-strong));
+  left: calc(-1 * var(--border-width-strong));
+  width: 7px;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  background: var(--foil-shine), var(--foil);
+  background-size: 100% 250%, 100% 100%;
+  pointer-events: none;
+}
+
+/* Vendu : la photo passe en gris, le prix perd son aplat, le titre recule. */
+.lot-sold .lot-window img {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+.lot-sold .lot-title {
+  color: var(--ink-soft);
+}
+.lot-sold .price-chip {
+  background: transparent;
+  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 2px var(--ink-soft);
+}
+
+}

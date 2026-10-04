@@ -1,0 +1,347 @@
+<title>Film BulkTCG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400..700&family=Mona+Sans:wght@400..800&family=Science+Gothic:wdth,wght@50..120,350..800&family=Space+Grotesk:wght@400..700&display=swap">
+<link rel="stylesheet" href="motion.css">
+
+<main class="page">
+  <header class="page-head">
+    <div>
+      <p class="page-eyebrow">BulkTCG · film de lancement</p>
+      <h1 class="page-title">Tout le bulk, près de chez vous.</h1>
+      <p class="page-lead">Cinquante secondes pour donner envie de déposer son lot&nbsp;: le site et ses composants, puis ce qu’un lot rapporte face à Cardmarket et Leboncoin.</p>
+    </div>
+    <div class="formats" role="group" aria-label="Format du film">
+      <button type="button" id="format-landscape" aria-pressed="true">16:9</button>
+      <button type="button" id="format-portrait" aria-pressed="false">9:16</button>
+    </div>
+  </header>
+
+  <section class="viewer" aria-label="Lecteur du film">
+    <div class="screen" id="screen">
+      <div class="stage" id="stage"></div>
+      <button class="screen-hit" id="screen-hit" type="button" aria-label="Lire ou mettre en pause"></button>
+      <button class="poster-play" id="poster-play" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>
+        <span>Lire le film · 0:50</span>
+      </button>
+    </div>
+    <div class="controls">
+      <button class="control control-primary" id="play" type="button" aria-label="Lire">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path id="play-icon" d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>
+      </button>
+      <span class="time" id="time">0:00 / 0:50</span>
+      <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Position dans le film" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" aria-valuetext="0:00 sur 0:50">
+        <div class="scrub-track"><div class="scrub-fill" id="scrub-fill"></div></div>
+        <div id="scrub-ticks"></div>
+        <div class="scrub-thumb" id="scrub-thumb"></div>
+      </div>
+      <button class="control" id="sound" type="button" aria-pressed="true">Son activé</button>
+      <button class="control" id="restart" type="button" aria-label="Revoir depuis le début">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12a7 7 0 1 0 2.1-5M5 4v4h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>
+      </button>
+    </div>
+    <nav class="chapters" id="chapters" aria-label="Chapitres"></nav>
+    <p class="status-line" id="status" role="status"></p>
+  </section>
+
+  <section class="notes">
+    <article class="note">
+      <h2>Ce que le film affirme</h2>
+      <ul id="claims"></ul>
+    </article>
+    <article class="note">
+      <h2>Fabrication</h2>
+      <p>Tout est dessiné en code avec les éléments du site&nbsp;: ses jetons de couleur, ses quatre polices, son jeu d’icônes, la vignette gradée, les intercalaires, la demande de recherche et le sélecteur de statut. Aucune carte d’un éditeur n’apparaît&nbsp;: le lot est un dessin de carton vu de dessus.</p>
+      <p>La musique et les bruitages sont synthétisés dans le navigateur, sans aucune piste sous licence, et calés sur l’image. Raccourcis&nbsp;: Espace pour lire ou mettre en pause, flèches pour avancer ou reculer de deux secondes, M pour le son.</p>
+    </article>
+  </section>
+</main>
+
+<script src="config.js"></script>
+<script src="engine.js"></script>
+<script src="audio.js"></script>
+<script src="scenes.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const render = window.__RENDER__ || null;
+  const DURATION = window.Film.DURATION;
+  const POSTER_TIME = 47.6;
+  const stage = document.getElementById("stage");
+  const screen = document.getElementById("screen");
+  const viewer = document.querySelector(".viewer");
+  const statusLine = document.getElementById("status");
+
+  let portrait = render ? Boolean(render.portrait) : false;
+  let film = null;
+  let player = null;
+  let audio = null;
+  let audioKey = "";
+  let started = false;
+
+  if (render) document.body.classList.add("render-mode");
+
+  const clock = (seconds) => {
+    const whole = Math.max(0, Math.floor(seconds + 0.0001));
+    return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+  };
+
+  /* Les quatre familles, chargées avant toute mesure : la marque se pose sur
+     l'en-tête à partir de la largeur réelle du logotype. */
+  async function loadFonts() {
+    const faces = [
+      '500 64px "Space Grotesk"',
+      '600 64px "Space Grotesk"',
+      '380 64px "Science Gothic"',
+      '650 64px "Science Gothic"',
+      '700 64px "Science Gothic"',
+      '800 64px "Science Gothic"',
+      '400 20px "Mona Sans"',
+      '600 20px "Mona Sans"',
+      '650 20px "Mona Sans"',
+      '700 20px "Mona Sans"',
+      '400 20px "Atkinson Hyperlegible Mono"',
+      '500 20px "Atkinson Hyperlegible Mono"',
+      '700 20px "Atkinson Hyperlegible Mono"',
+    ];
+    try {
+      await Promise.all(faces.map((face) => document.fonts.load(face, "BULKTCG Éé€ 0123 ?")));
+      await document.fonts.ready;
+    } catch {
+      /* Une police absente : le film tourne avec la pile de repli. */
+    }
+  }
+
+  function size() {
+    return window.Film.size(portrait);
+  }
+
+  function fit() {
+    const { width, height } = size();
+    if (render) {
+      screen.style.width = `${width}px`;
+      screen.style.height = `${height}px`;
+      stage.style.transform = "none";
+      return;
+    }
+    const available = viewer.clientWidth;
+    const maxHeight = Math.max(360, window.innerHeight - 240);
+    const scale = Math.min(available / width, maxHeight / height);
+    screen.style.width = `${Math.round(width * scale)}px`;
+    screen.style.height = `${Math.round(height * scale)}px`;
+    stage.style.transform = `scale(${scale})`;
+  }
+
+  function build(time) {
+    film = window.Film.create(stage, { portrait });
+    fit();
+    film.timeline.render(time);
+    const key = JSON.stringify(film.cues);
+    if (key !== audioKey) {
+      audioKey = key;
+      audio = null;
+    }
+  }
+
+  /* La bande-son se rend hors temps réel, sans attendre un geste : elle est
+     prête, en général, avant qu'on appuie sur Lecture. */
+  function getAudio() {
+    if (!audio) {
+      if (player && player.playing) statusLine.textContent = "Préparation du son…";
+      audio = window.BulkAudio.render({ duration: DURATION, cues: film.cues }).then((buffer) => {
+        statusLine.textContent = "";
+        return buffer;
+      });
+    }
+    return audio;
+  }
+
+  async function start() {
+    await loadFonts();
+    build(render ? 0 : POSTER_TIME);
+
+    if (render) {
+      window.filmApi = {
+        seek: (t) => film.timeline.render(t),
+        duration: DURATION,
+        audioBase64: async () => window.BulkAudio.toWavBase64(await getAudio()),
+        audioStats: async () => window.BulkAudio.stats(await getAudio()),
+      };
+      window.filmReady = true;
+      return;
+    }
+
+    const playButton = document.getElementById("play");
+    const playIcon = document.getElementById("play-icon");
+    const poster = document.getElementById("poster-play");
+    const time = document.getElementById("time");
+    const scrub = document.getElementById("scrub");
+    const fill = document.getElementById("scrub-fill");
+    const thumb = document.getElementById("scrub-thumb");
+    const chapters = document.getElementById("chapters");
+    const sound = document.getElementById("sound");
+
+    const chapterButtons = window.Film.CHAPTERS.map((chapter) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "chapter";
+      button.innerHTML = `${chapter.label}<span>${clock(chapter.t)}</span>`;
+      button.addEventListener("click", () => {
+        hidePoster();
+        player.seek(chapter.t);
+      });
+      chapters.appendChild(button);
+      return button;
+    });
+    const ticks = document.getElementById("scrub-ticks");
+    window.Film.CHAPTERS.slice(1).forEach((chapter) => {
+      const tick = document.createElement("span");
+      tick.className = "scrub-tick";
+      tick.style.left = `${(chapter.t / DURATION) * 100}%`;
+      ticks.appendChild(tick);
+    });
+
+    const onTick = (t, playing) => {
+      const ratio = Math.max(0, Math.min(1, t / DURATION));
+      fill.style.transform = `scaleX(${ratio})`;
+      thumb.style.left = `${ratio * 100}%`;
+      time.textContent = `${clock(t)} / ${clock(DURATION)}`;
+      scrub.setAttribute("aria-valuenow", String(Math.round(t)));
+      scrub.setAttribute("aria-valuetext", `${clock(t)} sur ${clock(DURATION)}`);
+      playIcon.setAttribute("d", playing ? "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" : "M7 4.5v15l12-7.5z");
+      playButton.setAttribute("aria-label", playing ? "Mettre en pause" : "Lire");
+      let current = 0;
+      window.Film.CHAPTERS.forEach((chapter, index) => {
+        if (t >= chapter.t - 0.001) current = index;
+      });
+      chapterButtons.forEach((button, index) => button.setAttribute("aria-current", index === current ? "true" : "false"));
+    };
+
+    player = new window.Motion.Player({
+      duration: DURATION,
+      render: (t) => film.timeline.render(t),
+      onTick,
+      getAudio,
+    });
+    // L'image d'attente est la carte de fin ; la barre, elle, part de zéro.
+    player.time = 0;
+    onTick(0, false);
+    setTimeout(() => getAudio(), 400);
+
+    function hidePoster() {
+      if (started) return;
+      started = true;
+      poster.hidden = true;
+    }
+
+    const toggle = () => {
+      if (!started) {
+        hidePoster();
+        player.seek(0);
+        player.play();
+        return;
+      }
+      player.toggle();
+    };
+    poster.addEventListener("click", toggle);
+    playButton.addEventListener("click", toggle);
+    document.getElementById("screen-hit").addEventListener("click", toggle);
+    document.getElementById("restart").addEventListener("click", () => {
+      hidePoster();
+      player.seek(0);
+      player.play();
+    });
+    sound.addEventListener("click", () => {
+      const on = sound.getAttribute("aria-pressed") !== "true";
+      sound.setAttribute("aria-pressed", String(on));
+      sound.textContent = on ? "Son activé" : "Son coupé";
+      player.setSound(on);
+    });
+
+    const seekFromPointer = (event) => {
+      const box = scrub.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (event.clientX - box.left) / box.width));
+      hidePoster();
+      player.seek(ratio * DURATION);
+    };
+    let resume = false;
+    scrub.addEventListener("pointerdown", (event) => {
+      resume = player.playing;
+      if (resume) player.pause();
+      scrub.setPointerCapture(event.pointerId);
+      seekFromPointer(event);
+    });
+    scrub.addEventListener("pointermove", (event) => {
+      if (scrub.hasPointerCapture(event.pointerId)) seekFromPointer(event);
+    });
+    scrub.addEventListener("pointerup", () => {
+      if (resume) player.play();
+      resume = false;
+    });
+    scrub.addEventListener("keydown", (event) => {
+      const steps = { ArrowLeft: -2, ArrowDown: -2, ArrowRight: 2, ArrowUp: 2, PageDown: -10, PageUp: 10 };
+      if (event.key in steps) {
+        event.preventDefault();
+        hidePoster();
+        player.seek(player.now() + steps[event.key]);
+      } else if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        hidePoster();
+        player.seek(event.key === "Home" ? 0 : DURATION);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const tag = event.target.tagName;
+      if (event.target === scrub || tag === "INPUT" || tag === "TEXTAREA") return;
+      if (event.key === " " && tag !== "BUTTON") {
+        event.preventDefault();
+        toggle();
+      } else if (event.key === "k" || event.key === "K") {
+        toggle();
+      } else if (event.key === "m" || event.key === "M") {
+        sound.click();
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        hidePoster();
+        player.seek(player.now() + (event.key === "ArrowLeft" ? -2 : 2));
+      }
+    });
+
+    const setFormat = (nextPortrait) => {
+      if (nextPortrait === portrait) return;
+      const wasPlaying = player.playing;
+      const t = started ? player.now() : POSTER_TIME;
+      if (wasPlaying) player.pause();
+      portrait = nextPortrait;
+      document.getElementById("format-landscape").setAttribute("aria-pressed", String(!portrait));
+      document.getElementById("format-portrait").setAttribute("aria-pressed", String(portrait));
+      build(t);
+      player.time = started ? t : 0;
+      if (wasPlaying) player.play();
+    };
+    document.getElementById("format-landscape").addEventListener("click", () => setFormat(false));
+    document.getElementById("format-portrait").addEventListener("click", () => setFormat(true));
+    window.addEventListener("resize", fit);
+
+    // Ce que le film affirme, relu dans config.js.
+    const config = window.FILM_CONFIG;
+    const date = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(`${config.checkedOn}T12:00:00`));
+    const claims = document.getElementById("claims");
+    const add = (html) => {
+      const item = document.createElement("li");
+      item.innerHTML = html;
+      claims.appendChild(item);
+    };
+    add(`Chiffres relevés le ${date}, à la source, et écrits une seule fois dans <code>config.js</code>.`);
+    add(`<b>Cardmarket</b>&nbsp;: frais de vente de 5&nbsp;%, envoi suivi obligatoire au-delà de 25&nbsp;€ — <a href="https://help.cardmarket.com/fr/SellingShipmentsFAQ" target="_blank" rel="noopener">centre d’aide Cardmarket</a>.`);
+    add(`<b>Leboncoin</b>&nbsp;: la Transaction sécurisée est gratuite pour le vendeur, l’acheteur paie ses frais — <a href="https://assistance.leboncoin.info/hc/fr/articles/8864035377938" target="_blank" rel="noopener">centre d’aide Leboncoin</a>. Sur un lot de 150&nbsp;€, le vendeur garde autant que sur BulkTCG : le film le montre tel quel.`);
+    add(`<b>Colissimo</b> jusqu’à 10&nbsp;kg, livraison à domicile&nbsp;: 25,29&nbsp;€ — <a href="https://www.laposte.fr/tarif-colissimo" target="_blank" rel="noopener">tarifs La Poste 2026</a>.`);
+    add(`<b>BulkTCG</b>&nbsp;: aucun paiement ne passe par le site, donc aucune commission ; dépôt et trois photos gratuits (options payantes à part).`);
+    add(config.siteAddress ? `Adresse affichée en fin de film&nbsp;: ${config.siteAddress}.` : `Le domaine n’est pas encore choisi&nbsp;: la carte de fin n’affiche aucune adresse.`);
+  }
+
+  start();
+})();
+</script>

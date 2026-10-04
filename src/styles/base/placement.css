@@ -1,0 +1,50 @@
+/* Ce qui tient sa place dans la page : la colonne épinglée et les
+   emplacements publicitaires. */
+
+@layer components {
+
+/* ---------- colonne qui suit le défilement ----------
+
+   Remonter changer un critère ou revoir le prix est le geste qu'on refait
+   le plus. La colonne se cale sous l'en-tête collant.
+
+   Le z-index est la clé : un élément épinglé garde sa place dans le flux, si
+   bien que ses voisins situés en dessous remontent et se dessinent par-dessus
+   lui. C'est ainsi que le pavé publicitaire s'est retrouvé au milieu du
+   panneau de filtres. Dans la couche positionnée, il peint au-dessus : les
+   encarts glissent derrière lui.
+
+   Jamais de défilement interne. La colonne défilait sur elle-même dès
+   qu'elle dépassait l'écran — une annonce réservée, sur 860 px de haut,
+   portait une barre de défilement en permanence. Plus haute que l'écran,
+   elle suit maintenant la page dans les deux sens : StickyColumn ajuste son
+   `top` entre cette accroche haute et une accroche basse. Sans JavaScript,
+   elle colle par le haut. */
+
+@media (min-width: 1024px) {
+  .sticky-column {
+    position: sticky;
+    top: calc(var(--header-height) + var(--tranche-height) + 20px);
+    z-index: 1;
+  }
+}
+
+/* ---------- emplacements publicitaires ----------
+   La boîte est réservée par le ratio du format, pas par une hauteur fixe : le
+   repli mobile d'un leaderboard est plus haut que le format desktop, une
+   min-height unique aurait surdimensionné la case en grand écran. */
+
+.ad-slot {
+  width: 100%;
+  max-width: calc(var(--ad-width) * 1px);
+  aspect-ratio: var(--ad-width) / var(--ad-height);
+}
+
+@media (max-width: 767px) {
+  .ad-slot {
+    max-width: calc(var(--ad-mobile-width) * 1px);
+    aspect-ratio: var(--ad-mobile-width) / var(--ad-mobile-height);
+  }
+}
+
+}

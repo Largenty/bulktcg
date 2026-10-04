@@ -1,0 +1,129 @@
+/* La carte d'une demande de recherche. */
+
+@layer components {
+
+/* ---------- la demande de recherche ----------
+   De la famille de la vignette, sans en être une : un filet à la couleur du
+   jeu en tête plutôt qu'un cadre d'encre, la loupe à la place du carré de
+   jeu, le budget en pavé contour à la place du prix, et une fiche courte à
+   la place de la photo. Le DOM suit l'ordre de lecture — titre, budget,
+   type, fiche, acheteur — et la grille le range comme la vignette. */
+
+.want {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "type budget"
+    "title title"
+    "specs specs"
+    "foot foot";
+  grid-template-rows: auto auto 1fr auto;
+  column-gap: 10px;
+  width: 100%;
+  padding: 18px 14px 0;
+  overflow: hidden;
+  background: var(--card);
+  border: var(--border-width) solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  transition:
+    transform var(--duration-base) ease-out,
+    box-shadow var(--duration-base) ease-out,
+    border-color var(--duration-fast) ease;
+}
+.want:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--ink);
+}
+.want-closed {
+  opacity: 0.75;
+}
+.want-band {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+}
+/* Aperçu d'une demande dont le jeu n'est pas choisi : un filet hachuré, pas
+   une couleur supposée. */
+.want-band-empty {
+  background: repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px);
+}
+.want-type {
+  grid-area: type;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--ink-soft);
+  font-variation-settings: "wdth" 54;
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}
+.want-budget {
+  grid-area: budget;
+  align-self: center;
+  font-size: var(--number-sm);
+  font-variation-settings: "wdth" 96;
+}
+.want-title {
+  grid-area: title;
+  margin: 10px 0 12px;
+  min-height: calc(2 * 1.3em);
+  font-size: var(--text-lg);
+  font-weight: 650;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.want-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.want-specs {
+  grid-area: specs;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 7px 14px;
+  padding: 12px 0;
+  border-top: var(--border-width) solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+}
+.want-specs dt {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 62;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.want-specs dd {
+  min-width: 0;
+  color: var(--ink);
+}
+.want-specs b {
+  font-weight: 700;
+}
+.want-foot {
+  grid-area: foot;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 11px 0 12px;
+  border-top: var(--border-width) solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+}

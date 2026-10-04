@@ -1,0 +1,68 @@
+import type { ListingInput } from "@/lib/mock/listings/listing-input";
+import { daysAgo } from "@/lib/mock/seed";
+
+/* Les annonces Riftbound de la démonstration. */
+export const RIFTBOUND_LISTINGS: ListingInput[] = [
+  {
+    id: "l-31",
+    sellerId: "u-03",
+    gameId: "riftbound",
+    title: "Display Riftbound Origines FR scellée, 24 boosters",
+    description:
+      "Display Origines en français, 24 boosters, film d'usine intact. Achetée à la sortie française pour l'ouvrir en direct, et finalement je n'en ai pas le temps.\n\nMonteux ou Carpentras, en soirée. Je montre le film et les soudures avant que vous payiez.",
+    lotType: "sealed",
+    cardCount: null,
+    weightKg: null,
+    condition: "sealed",
+    language: "VF",
+    priceCents: 12900,
+    status: "available",
+    viewCount: 318,
+    photoCount: 4,
+    editions: ["riftbound-ogn"],
+    tags: ["booster-box"],
+    createdAt: daysAgo(2),
+  },
+  {
+    id: "l-32",
+    sellerId: "u-04",
+    gameId: "riftbound",
+    title: "Lot Riftbound : 2 decks de champion et 400 cartes",
+    description:
+      "Deux decks de champion Origins complets, rangés dans leur boîte, et un peu plus de quatre cents cartes d'Origins et de Spiritforged à côté. Environ 480 cartes au total, toutes en anglais, jouées sous pochette depuis le premier jour.\n\nLes pochettes partent avec. Valence, près de la gare, ou Romans un soir de semaine.",
+    lotType: "mixed",
+    cardCount: 480,
+    weightKg: 1.2,
+    condition: "NM",
+    language: "EN",
+    priceCents: 7500,
+    status: "available",
+    trade: "un deck de champion Riftbound complet",
+    viewCount: 204,
+    photoCount: 5,
+    editions: ["riftbound-ogn", "riftbound-sfd"],
+    tags: ["precon", "sleeves"],
+    createdAt: daysAgo(5),
+  },
+  {
+    id: "l-33",
+    sellerId: "u-11",
+    gameId: "riftbound",
+    title: "Vrac Riftbound 700 communes et peu communes, VO",
+    description:
+      "Sept cents communes et peu communes d'Origins, de Spiritforged et d'Unleashed, en anglais. Les rares et les cartes de champion ont été retirées, je préfère le dire tout de suite. De quoi compléter une collection ou monter des decks à petit prix.\n\nBollène, ou Orange en semaine.",
+    lotType: "bulk",
+    cardCount: 700,
+    weightKg: 1.3,
+    condition: "NM",
+    language: "EN",
+    priceCents: 2500,
+    previousPriceCents: 3000,
+    status: "available",
+    viewCount: 97,
+    photoCount: 3,
+    editions: ["riftbound-ogn", "riftbound-sfd", "riftbound-unl"],
+    tags: [],
+    createdAt: daysAgo(11),
+  },
+];

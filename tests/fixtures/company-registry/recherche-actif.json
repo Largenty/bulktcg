@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "siren": "552032534",
+      "nom_complet": "DANONE",
+      "nom_raison_sociale": "DANONE",
+      "etat_administratif": "A",
+      "date_fermeture": null,
+      "statut_diffusion": "O",
+      "matching_etablissements": [
+        {
+          "siret": "55203253400703",
+          "etat_administratif": "A",
+          "date_fermeture": null,
+          "adresse": "59-61 RUE LA FAYETTE 75009 PARIS",
+          "liste_enseignes": null,
+          "nom_commercial": null,
+          "statut_diffusion_etablissement": "O",
+          "est_siege": true
+        }
+      ]
+    }
+  ],
+  "total_results": 1,
+  "page": 1,
+  "per_page": 1,
+  "total_pages": 1
+}

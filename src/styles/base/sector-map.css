@@ -1,0 +1,116 @@
+/* Hors couches, comme overlays.css : la carte du secteur d'une annonce, dans
+   un popover natif — le navigateur l'ouvre, le ferme à Échap ou d'un clic
+   dehors, et le pose dans la couche supérieure, au-dessus de la colonne
+   épinglée comme de l'en-tête. */
+
+/* Le lieu, dans la ligne sous le titre : un bouton qui se lit comme le texte
+   qu'il remplace, souligné pour dire qu'il s'ouvre. */
+.sector-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: var(--border-width);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.sector-trigger:hover {
+  color: var(--ink);
+}
+
+.sector-popover {
+  width: min(560px, calc(100vw - 2 * var(--container-pad)));
+  max-height: calc(100dvh - 2 * var(--container-pad));
+  overflow: auto;
+  margin: auto;
+  padding: 20px;
+  border: var(--border-width-strong) solid var(--ink);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  color: var(--ink);
+}
+.sector-popover::backdrop {
+  background: var(--scrim);
+}
+
+/* Le cadre est carré : les kilomètres y ont la même longueur dans les deux
+   sens. Les traits gardent leur épaisseur quelle que soit la taille du
+   dessin (non-scaling-stroke) : un filet vaut --border-width. */
+.sector-map {
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--tint);
+}
+.sector-map svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sector-map circle {
+  vector-effect: non-scaling-stroke;
+}
+.sector-ring {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: var(--border-width);
+  stroke-dasharray: 4 4;
+}
+.sector-zone {
+  fill: var(--sector-color);
+  fill-opacity: 0.25;
+  stroke: var(--sector-color);
+  stroke-width: var(--border-width-strong);
+}
+.sector-town {
+  fill: var(--ink-soft);
+}
+.sector-center {
+  fill: var(--ink);
+}
+
+/* Les noms sont du HTML posé par-dessus, en pourcentages du cadre : ils
+   gardent l'échelle typographique du site, que le texte d'un SVG mis à
+   l'échelle perdrait. */
+.sector-label {
+  position: absolute;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  line-height: 1.1;
+}
+.sector-label[data-side="right"] {
+  margin-left: 8px;
+}
+.sector-label[data-side="left"] {
+  transform: translate(-100%, -50%);
+  margin-left: -8px;
+}
+.sector-label[data-side="below"] {
+  transform: translateX(-50%);
+}
+.sector-label[data-side="above"] {
+  transform: translate(-50%, -100%);
+}
+/* Le placement des noms est calculé pour une carte d'environ 480 px : plus
+   étroite, sur téléphone, les noms des voisines débordaient du cadre. Seuls
+   les points restent, et la liste sous la carte donne tous les noms. */
+@container (max-width: 420px) {
+  .sector-label[data-town] {
+    display: none;
+  }
+}
+.sector-ring-label {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 0 4px;
+  background: var(--tint);
+}

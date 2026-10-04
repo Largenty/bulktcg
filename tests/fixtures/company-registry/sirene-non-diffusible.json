@@ -1,0 +1,30 @@
+{
+  "header": { "statut": 200, "message": "OK" },
+  "etablissement": {
+    "siren": "987654321",
+    "siret": "98765432101237",
+    "statutDiffusionEtablissement": "P",
+    "uniteLegale": {
+      "statutDiffusionUniteLegale": "P",
+      "etatAdministratifUniteLegale": "A",
+      "denominationUniteLegale": null,
+      "nomUniteLegale": "[ND]",
+      "prenomUsuelUniteLegale": "[ND]"
+    },
+    "adresseEtablissement": {
+      "numeroVoieEtablissement": "[ND]",
+      "libelleVoieEtablissement": "[ND]",
+      "codePostalEtablissement": "84000",
+      "libelleCommuneEtablissement": "AVIGNON"
+    },
+    "periodesEtablissement": [
+      {
+        "dateFin": null,
+        "dateDebut": "2024-03-01",
+        "etatAdministratifEtablissement": "A",
+        "enseigne1Etablissement": "[ND]",
+        "denominationUsuelleEtablissement": null
+      }
+    ]
+  }
+}

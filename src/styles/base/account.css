@@ -1,0 +1,194 @@
+/* Hors couches : les avis, le suivi des ventes et le tableau de suivi du
+   compte — et, entre eux, deux règles de liste : l'encart pleine largeur de
+   la grille, et « Sans photo » selon la place de son emplacement. */
+
+/* ---------- avis ---------- */
+
+/* Une étoile du formulaire d'avis : le dessin d'un bouton radio natif,
+   masqué mais présent. Pleine jusqu'à la note choisie. */
+.star {
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: var(--line-strong);
+}
+
+.star[data-on] {
+  color: var(--pokemon);
+}
+
+/* La part de 5 qu'atteint la moyenne d'un critère. Un critère sans avis
+   n'a pas une barre vide : il n'a pas de barre. */
+.score-bar {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--tint);
+}
+
+.score-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+
+/* ---------- suivi des ventes ---------- */
+
+/* Les étapes d'une vente, reliées par un filet : pastille pleine pour ce
+   qui a eu lieu, creuse pour ce qui reste à venir. */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+
+/* Sur téléphone, la date sous l'étape, toujours : en ligne, elle tombait
+   tantôt à côté, tantôt dessous, selon la longueur du libellé. */
+.timeline-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 0 18px 28px;
+}
+
+@media (min-width: 640px) {
+  .timeline-step {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+}
+
+.timeline-step::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border: var(--border-width-strong) solid var(--ink);
+  border-radius: 50%;
+  background: var(--card);
+}
+
+.timeline-step[data-done]::before {
+  background: var(--ink);
+}
+
+.timeline-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 19px;
+  bottom: 0;
+  left: 5px;
+  border-left: var(--border-width) solid var(--line-strong);
+}
+
+/* Un encart dans la grille des annonces : toute la largeur, et toujours
+   après la deuxième rangée, quel que soit le nombre de colonnes. Il était
+   inséré après la sixième vignette, un calcul fait pour trois colonnes :
+   à quatre, la deuxième rangée restait amputée de deux annonces. Placé sur
+   une rangée explicite, il laisse les vignettes remplir les deux premières
+   puis reprendre dessous. Sur téléphone, où la liste n'a qu'une colonne, il
+   suit la sixième vignette. */
+.grid-insert {
+  grid-column: 1 / -1;
+  grid-row: 7;
+}
+
+@media (min-width: 640px) {
+  .grid-insert {
+    grid-row: 3;
+  }
+}
+
+/* Le tableau de suivi du compte : des étapes reliées par une flèche, ou par
+   « ou » quand deux fins s'excluent. La flèche est un dessin : son texte de
+   remplacement est vide, un lecteur d'écran lit la liste ordonnée. */
+/* Sur téléphone, une grille de deux cases sans flèches — l'ordre de la
+   liste suffit : en ligne, les flèches tombaient en tête de rangée. */
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}
+
+.pipeline > li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pipeline > li > .pipeline-stage {
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .pipeline > li + li::before {
+    content: "→" / "";
+    color: var(--muted);
+    font-size: var(--text-lg);
+  }
+
+  .pipeline > li[data-alternative]::before {
+    content: "ou" / "";
+    font-size: var(--text-sm);
+  }
+}
+
+.pipeline-stage {
+  display: grid;
+  gap: 6px;
+  min-width: 112px;
+  padding: 10px 14px;
+  border: var(--border-width) solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--ink);
+}
+
+.pipeline-stage:hover {
+  border-color: var(--ink);
+}
+
+.pipeline-stage[data-needs-action] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/* « Sans photo » se montre selon la place de l'emplacement, pas selon la
+   largeur de l'écran : dans une miniature de 64 px, il était coupé en
+   « PHOTO ». Sous 120 px, l'emplacement aux couleurs du jeu parle seul. */
+.photo-frame {
+  container-type: inline-size;
+}
+
+@container (min-width: 120px) {
+  .lot-window-empty {
+    display: block;
+  }
+}
+
+/* « Photos retirées », plus long, attend 200 px : en dessous, l'emplacement
+   aux couleurs du jeu parle seul, et la ligne du cycle de vie le dit en
+   toutes lettres. */
+@container (max-width: 199px) {
+  .lot-window-empty-wide {
+    display: none;
+  }
+}

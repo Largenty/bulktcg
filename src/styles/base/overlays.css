@@ -1,0 +1,94 @@
+/* Hors couches, comme page.css : la feuille modale, la barre d'action
+   mobile et la rangée qui défile à l'horizontale. */
+
+/* ---------- feuille modale ----------
+   <dialog> natif : le piège de focus, Échap et l'inertie du reste de la page
+   viennent du navigateur. Sur mobile c'est une feuille qui monte du bas ; en
+   grand écran, un panneau latéral. */
+
+.sheet {
+  width: 100%;
+  max-width: 100%;
+  max-height: 100dvh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+.sheet::backdrop {
+  background: var(--scrim);
+}
+.sheet[open] {
+  animation: sheet-in var(--duration-base) ease-out;
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+/* La page derrière la feuille ne défile plus : sinon, sur mobile, le doigt
+   qui fait défiler les filtres fait aussi défiler la grille. */
+html:has(.sheet[open]) {
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .sheet {
+    width: 420px;
+    margin-left: auto;
+    border-left: var(--border-width-strong) solid var(--frame);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* ---------- barre d'action mobile ---------- */
+
+/* L'affichage est décidé ici et nulle part ailleurs : une classe utilitaire
+   « flex » posée à côté l'emporterait sur le masquage en grand écran. */
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: var(--layer-bar);
+  padding: 10px var(--container-pad) calc(10px + env(safe-area-inset-bottom));
+  background: var(--card);
+  border-top: var(--border-width-strong) solid var(--frame);
+  box-shadow: var(--shadow-bar);
+}
+@media (min-width: 1024px) {
+  .action-bar {
+    display: none;
+  }
+}
+
+/* ---------- défilement horizontal propre ---------- */
+
+.scroll-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  /* Sans cette marge d'accroche, l'aimantation aligne la première pastille
+     sur le bord de la zone défilante et mange la gouttière de 16 px. */
+  scroll-padding-inline: var(--container-pad);
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.scroll-row::-webkit-scrollbar {
+  display: none;
+}
+.scroll-row > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  /* Un texte réservé aux lecteurs d'écran (.sr-only) est en position
+     absolue : sans ancêtre positionné dans la rangée, il se plaçait par
+     rapport à la page, échappait au défilement de la rangée et élargissait
+     l'accueil de 610 px sur un téléphone. */
+  position: relative;
+}

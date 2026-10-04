@@ -1,0 +1,154 @@
+/* La vignette d'un lot à partir de 640 px : verticale, dans l'ordre d'une
+   carte. Importée après lot.css, dont elle surcharge les règles. */
+
+@layer components {
+
+@media (min-width: 640px) {
+  .lot {
+    --lot-pad: 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "type price"
+      "title title"
+      "window window"
+      "facts facts"
+      "sets sets"
+      "foot foot";
+    grid-template-rows: auto auto auto auto auto 1fr;
+    row-gap: 0;
+    padding: var(--lot-pad) var(--lot-pad) 0;
+  }
+  /* En grand écran, le type tient sur deux lignes fixes — le jeu, puis le
+     format en retrait de couleur — comme la ligne de type d'une carte et son
+     sous-type. « ONE PIECE — CLASSEUR » demandait 147 px là où la tête
+     d'une vignette à trois colonnes en offre 124 : il passait à la ligne sur
+     une vignette sur deux, et les titres d'une même rangée se décalaient. */
+  .lot-type,
+  .want-type {
+    align-items: flex-start;
+    padding-left: 2px;
+  }
+  .lot-type .lot-mark {
+    margin-top: 1px;
+  }
+  .lot-type-text {
+    display: grid;
+    row-gap: 2px;
+  }
+  .lot-type-separator {
+    display: none;
+  }
+  .lot-type-format {
+    color: var(--muted);
+  }
+  .lot-price {
+    grid-area: price;
+    position: static;
+    translate: none;
+    box-shadow: none;
+    align-self: center;
+    margin-left: 8px;
+    font-size: var(--number-sm);
+    font-variation-settings: "wdth" 96;
+  }
+  .lot-title {
+    margin: 9px 2px 12px;
+    font-size: var(--text-lg);
+    /* Deux lignes réservées : toutes les étiquettes d'une rangée ont la
+       même hauteur, et leurs photos tombent à la même hauteur. */
+    min-height: calc(2 * 1.3em);
+  }
+  .lot-window {
+    width: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .lot-window-seal {
+    top: 10px;
+    left: 10px;
+    padding: 6px 9px 5px;
+    font-variation-settings: "wdth" 104;
+    letter-spacing: 0.08em;
+  }
+  .lot-window-stamp {
+    top: 46%;
+    padding: 7px 14px 6px;
+    border-width: 3px;
+    box-shadow: inset 0 0 0 2px var(--stamp-bg), inset 0 0 0 3px currentColor;
+    font-variation-settings: "wdth" 112;
+    font-size: var(--text-xl);
+    letter-spacing: 0.14em;
+    rotate: -8deg;
+  }
+  .lot-window-flags {
+    position: absolute;
+    z-index: 2;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .lot-window-drop {
+    rotate: 3deg;
+    box-shadow: 0 2px 0 rgb(10 12 16 / 0.35);
+  }
+  .lot-type-urgent {
+    display: none;
+  }
+  .lot-window-pro {
+    display: inline-flex;
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px 5px;
+    border-radius: 0 0 var(--radius-sm) 0;
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+  .credit {
+    display: flex;
+  }
+  .lot-facts {
+    margin: 12px 2px 0;
+  }
+  .lot-facts > div:not(:last-child)::after {
+    content: none;
+  }
+  .lot-facts > div + div {
+    padding-left: 11px;
+    margin-left: 11px;
+    border-left: var(--border-width) solid var(--line);
+  }
+  .lot-sets {
+    display: flex;
+    margin: 10px 2px 0;
+  }
+  .lot-foot {
+    align-self: end;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 10px;
+    margin-top: 12px;
+    padding: 11px 2px 12px;
+    border-top: var(--border-width) solid var(--line);
+  }
+  .lot-foot > span + span::before {
+    content: none;
+  }
+  .lot-featured::before {
+    top: calc(-1 * var(--border-width-strong));
+    right: calc(-1 * var(--border-width-strong));
+    bottom: auto;
+    width: auto;
+    height: 7px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background-size: 250% 100%, 100% 100%;
+  }
+}
+
+}

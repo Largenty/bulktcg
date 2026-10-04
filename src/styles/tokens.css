@@ -1,0 +1,361 @@
+/* Tokens BulkTCG — direction « Gradé ».
+   Source unique de vérité pour la couleur, la typo, l'espace et le relief.
+   Aucune valeur littérale ne doit apparaître dans un composant : une couleur,
+   une taille de texte ou une épaisseur de trait se choisit ici, et
+   tests/typography.test.mjs comme tests/contrast.test.mjs le vérifient.
+
+   Chaque lot est présenté comme une carte gradée : une étiquette nette dans
+   un boîtier, qui dit exactement ce qu'il contient et n'invente rien. D'où
+   un fond gris froid d'acrylique, des cadres d'encre francs, le prix en
+   pavé inversé là où une carte porte son coût, et le holographique réduit
+   à un sceau — celui de la mise en avant payée. L'emphase passe par
+   l'inversion et la graisse, pas par une troisième couleur : les seules
+   couleurs vives du site sont celles des jeux, et elles veulent donc
+   toujours dire « ce jeu-là ».
+
+   Trois familles de couleurs, une règle par famille :
+   1. Les couleurs de thème s'écrivent une fois, leurs deux valeurs côte à
+      côte — voir l'interrupteur ci-dessous.
+   2. Les couleurs d'impression ne changent jamais : une pastille de jeu, le
+      sceau holographique, le filigrane posé sur une photo. Ce qui est
+      imprimé ne change pas avec la lumière de la pièce.
+   3. Les encres posées sur un aplat (--on-ink, --on-chalk) sont un rôle, pas
+      une couleur : en sombre l'aplat d'encre devient clair, et la craie qui
+      s'y posait tomberait à 1:1. */
+
+:root {
+  /* --- l'interrupteur de thème ---
+     Une couleur de thème s'écrit avec ses deux valeurs côte à côte :
+       var(--when-light, #e9ecef) var(--when-dark, #0b0e12)
+     --when-light et --when-dark sont deux interrupteurs « à espace ». Celui
+     du thème actif vaut initial : var() prend alors sa valeur de repli.
+     L'autre vaut un espace : var() ne rend rien. La déclaration se réduit
+     toujours à une seule valeur, calculée ici, sur la racine, et héritée
+     telle quelle.
+     C'est la forme exacte en laquelle Lightning CSS compile light-dark()
+     pour les navigateurs qui ne le connaissent pas. Tailwind 4 désactive
+     cette compilation, light-dark() exige Safari 17.5 quand le reste du
+     site tient depuis Safari 16.4, et il refuse un dégradé ou une ombre. Les
+     deux interrupteurs basculent en fin de fichier. */
+  color-scheme: light;
+  --when-light: initial;
+  --when-dark: ;
+
+  /* --- impression : ce qui ne change pas avec le thème --- */
+  --print-ink: #0a0c10;
+  --print-white: #ffffff;
+
+  /* --- papier : les surfaces de lecture ---
+     Un gris froid d'acrylique, pas un papier chaud : la carte blanche s'en
+     détache, et le cadre d'encre fait le reste. En sombre, l'ordre des
+     clartés est conservé — la page, puis la carte au-dessus. */
+  --paper: var(--when-light, #e9ecef) var(--when-dark, #0b0e12);
+  --card: var(--when-light, #ffffff) var(--when-dark, #151920);
+  /* Surface creusée en clair, relevée en sombre : dans les deux cas un pas
+     de clarté au-delà de la carte, là où se posent un survol, un encadré
+     d'aide, un emplacement de photo. */
+  --tint: var(--when-light, #dfe3e8) var(--when-dark, #1c2129);
+  /* Filet décoratif : sépare des blocs déjà distincts par leur contenu. Il
+     n'a pas à tenir le 3:1, et l'audit le range dans les exemptions. */
+  --line: var(--when-light, #cdd2d9) var(--when-dark, #2a3039);
+  /* Contour porteur d'information — champ, case, pastille de filtre. Lui
+     tient le 3:1 du WCAG 1.4.11 sur les trois surfaces, dans les deux
+     thèmes. */
+  --line-strong: var(--when-light, #69717d) var(--when-dark, #6b7483);
+
+  --ink: var(--when-light, #0a0c10) var(--when-dark, #edf0f4);
+  --ink-soft: var(--when-light, #343a44) var(--when-dark, #bfc6d0);
+  --muted: var(--when-light, #545b67) var(--when-dark, #8f98a5);
+
+  /* Le cadre du boîtier : l'encre en clair ; en sombre un gris qui ne crie
+     pas — un cadre blanc de 2 px sur fond de nuit éblouirait. Décoratif :
+     le titre lien et le contenu délimitent déjà la vignette. */
+  --frame: var(--when-light, #0a0c10) var(--when-dark, #4b5463);
+
+  /* --- encres posées sur un aplat ---
+     Le texte d'un aplat d'encre (bouton principal, prix, pastille choisie,
+     bulle émise, compteur) : la craie en clair, l'encre d'impression en
+     sombre, où l'aplat devient clair. Sur un aplat de craie, l'encre
+     d'impression dans les deux thèmes. */
+  --on-ink: var(--when-light, #f2f4f7) var(--when-dark, #0a0c10);
+  --on-ink-muted: var(--when-light, #8e96a3) var(--when-dark, #545b67);
+  --on-chalk: var(--print-ink);
+
+  /* --- ardoise : les blocs inversés ---
+     Le pied de page, les bandeaux qu'on doit remarquer. En sombre elle
+     s'approfondit au lieu de s'éclaircir : elle reste le ton le plus sombre
+     du site. La craie ne bouge pas. */
+  --slate: var(--when-light, #0f1216) var(--when-dark, #05070a);
+  --slate-raised: var(--when-light, #1a1e25) var(--when-dark, #12161c);
+  --slate-line: var(--when-light, #343b46) var(--when-dark, #2a3039);
+  --chalk: #f2f4f7;
+  --chalk-soft: #c3c9d2;
+  --chalk-muted: #8e96a3;
+
+  /* L'en-tête : une étiquette blanche soulignée d'un filet d'encre en
+     clair ; en sombre, l'ardoise — plus profonde que la page. */
+  --header-bg: var(--when-light, #ffffff) var(--when-dark, #05070a);
+  --header-rule: var(--when-light, #0a0c10) var(--when-dark, #2a3039);
+
+  /* --- couleurs de jeu ---
+     Six couleurs qui identifient le jeu partout — carré de la ligne de
+     type, intercalaire, tranche — et ne servent à rien d'autre. Elles sont
+     choisies par distance perceptuelle : tests/games.test.mjs mesure chaque
+     paire en vision normale et sous trois simulations de daltonisme.
+     Couleurs d'impression, comme leur encre compagnon, qui ne peut donc pas
+     renvoyer à --ink ni à --card, lesquels s'inversent : blanc sur le bleu
+     et le rouge, encre sur les quatre autres. */
+  --pokemon: #efa00b;
+  --pokemon-ink: var(--print-ink);
+  --magic: #2563eb;
+  --magic-ink: var(--print-white);
+  --onepiece: #d01340;
+  --onepiece-ink: var(--print-white);
+  /* Lorcana : une prune magenta, l'encre améthyste du jeu. Séparée du
+     violet clair de Yu-Gi-Oh par la clarté, elle porte l'encre blanche
+     (6,76:1) et reste visible sur l'ardoise (2,61:1). */
+  --lorcana: #a104a9;
+  --lorcana-ink: var(--print-white);
+  --yugioh: #a970ff;
+  --yugioh-ink: var(--print-ink);
+  --riftbound: #0ac8b9;
+  --riftbound-ink: var(--print-ink);
+  --naruto: #15a34a;
+  --naruto-ink: var(--print-ink);
+  /* « Autre » n'est pas un jeu : un graphite neutre, qui ne veut dire aucun
+     jeu en particulier. Il porte l'encre blanche (5,77:1) et reste distinct
+     de chaque couleur de jeu, daltonisme compris (tests/games.test.mjs). */
+  --other: #62666c;
+  --other-ink: var(--print-white);
+
+  /* --- sens --- */
+  --status-available: var(--when-light, #1c7443) var(--when-dark, #5fd08f);
+  /* Un cran plus sombre qu'avant en clair : posé en tampon sur une photo
+     noire, l'ancien ambre ne tenait que 4,51:1. */
+  --status-reserved: var(--when-light, #8a5608) var(--when-dark, #f0b454);
+  --status-sold: var(--muted);
+  --success: var(--when-light, #1c7443) var(--when-dark, #5fd08f);
+  --success-soft: var(--when-light, #e3f1e8) var(--when-dark, #13261b);
+  --danger: var(--when-light, #b42318) var(--when-dark, #ff7a6b);
+  --danger-ink: var(--when-light, #ffffff) var(--when-dark, #0a0c10);
+  --danger-soft: var(--when-light, #fbe9e7) var(--when-dark, #321a18);
+  --notice-soft: var(--when-light, #fdf1d8) var(--when-dark, #2b2210);
+
+  /* --- holographique ---
+     Réservé à la mise en avant payée : le sceau « À la une » et la bande
+     qui borde la vignette, comme l'hologramme de sécurité d'un boîtier.
+     Cinq arrêts francs — une feuille métallisée, pas un pastel — tous
+     mesurés contre l'encre d'impression, que le texte tombe n'importe où
+     dans le dégradé. */
+  --foil-1: #ff8fcf;
+  --foil-2: #7fc6ff;
+  --foil-3: #6fe8b0;
+  --foil-4: #ffd95a;
+  --foil-5: #c7a4ff;
+  --foil: linear-gradient(115deg, var(--foil-1) 0%, var(--foil-2) 22%, var(--foil-3) 44%, var(--foil-4) 66%, var(--foil-5) 88%, var(--foil-1) 100%);
+  /* Le reflet qui traverse le sceau au survol. Décoratif. */
+  --foil-shine: linear-gradient(115deg, transparent 28%, rgb(255 255 255 / 0.75) 44%, transparent 58%);
+  --foil-ink: var(--print-ink);
+
+  /* Hachure d'un emplacement sans photo : un trait presque effacé, d'encre
+     en clair, de craie en sombre. */
+  --hatch: var(--when-light, rgb(10 12 16 / 0.07)) var(--when-dark, rgb(242 244 247 / 0.07));
+
+  /* Ligne de crédit posée sur la photo — le filigrane : fond d'encre
+     d'impression à 82 %, mesuré sur le pire cas, une photo blanche. La
+     photo ne change pas avec le thème, le filigrane non plus. */
+  --watermark-bg: rgb(10 12 16 / 0.82);
+  --watermark-ink: #f2f4f7;
+  --watermark-ink-soft: #c3c9d2;
+
+  /* Fond d'un tampon « Vendu » ou « Réservé » posé sur la photo. Mesuré
+     sur le pire cas de chaque thème : photo noire en clair, blanche en
+     sombre. */
+  --stamp-bg: var(--when-light, rgb(255 255 255 / 0.9)) var(--when-dark, rgb(21 25 32 / 0.9));
+
+  /* Reflet d'une pochette de classeur : un blanc très léger, en diagonale.
+     Décoratif — il ne passe jamais sous du texte. */
+  --sleeve-gloss: rgb(255 255 255 / 0.16);
+
+  /* Voile sous une feuille modale : l'encre ne fonce plus assez une page
+     déjà sombre, le noir prend le relais. */
+  --scrim: var(--when-light, rgb(10 12 16 / 0.55)) var(--when-dark, rgb(0 0 0 / 0.62));
+
+  /* --- typo ---
+     Quatre voix, une par rôle.
+     Les titres : Space Grotesk, une linéale géométrique — l'équivalent libre
+     le plus proche de la sans-serif d'Anthropic (Styrene B, aujourd'hui
+     Anthropic Sans), qui est propriétaire et ne se diffuse pas en police
+     web.
+     Les libellés, les prix, le logotype : Science Gothic en capitales
+     larges, le lettrage des étiquettes de gradation.
+     Le texte : Mona Sans.
+     Les codes, volumes, distances et références : Atkinson Hyperlegible
+     Mono, dont le zéro barré et les 1, I et l distincts servent OP-01 comme
+     BK-F08N9X. */
+  --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-science), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-mona), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-atkinson-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Échelle de texte. Le plancher est à 13 px : une métadonnée qu'on ne lit
+     pas n'informe personne, et les libellés en capitales sont plus grands,
+     plus espacés et moins gras que ce qu'on aurait par réflexe.
+     C'est la liste complète : un composant choisit un pas, il n'en invente
+     pas. tests/typography.test.mjs échoue si un littéral réapparaît. */
+  --text-xs: 13px;
+  --text-sm: 14px;
+  --text-md: 15px;
+  --text-lg: 16px;
+  --text-body: 17px;
+  --text-lead: 19px;
+  --text-xl: 22px;
+  --text-h3: 26px;
+  /* Titre court posé dans une tuile : un nom de jeu, un chiffre de tableau
+     de bord. Plus grand qu'un titre de section de carte, jamais qu'une
+     manchette. */
+  --text-2xl: 30px;
+  /* Des titres en casse normale : plus étroits que des capitales, ils
+     montent plus haut sans prendre plus de place. */
+  --text-h2: clamp(30px, 3.4vw, 46px);
+  /* La manchette de l'accueil tient sur toute la largeur de sa colonne :
+     elle est mesurée en unités de conteneur (cqi), et « Tout le bulk, près
+     de chez vous. » fait 13,99 em en Space Grotesk — 6,9 % de la largeur en
+     remplit 96,5 %. Un autre texte demande de refaire ce calcul. Sur
+     téléphone, le plancher de 40 px la fait passer sur plusieurs lignes
+     plutôt que de la rapetisser. */
+  --text-hero: max(40px, 6.9cqi);
+  --text-h1: clamp(38px, 5.2vw, 72px);
+
+  /* Chiffres mis en avant — prix, compteurs. En chiffres tabulaires et sans
+     interligne, ils grossissent avec l'importance que la page leur donne. */
+  --number-sm: 18px;
+  --number-md: 21px;
+  --number-lg: 24px;
+  --number-xl: 30px;
+  --number-2xl: 38px;
+  --number-3xl: 46px;
+
+  /* Le logotype tient sur une ligne : « BULKTCG » en un seul mot. Plus petit
+     et plus étroit sur téléphone, où il partage 328 px avec « Déposer » et
+     le menu. */
+  --logo-text: 20px;
+  --logo-width: 100;
+
+  /* --- formes : coins nets ---
+     Un boîtier n'a pas de coins mous : 2 à 10 px, et plus aucune pilule. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 10px;
+  --border-width: 1px;
+  --border-width-strong: 2px;
+
+  /* --- relief : sobre au repos, franc quand on agit ---
+     En sombre, une ombre d'encre ne se voit plus sur une page d'encre : le
+     noir prend le relais, plus dense. */
+  --shadow-sm: 0 1px 2px var(--when-light, rgb(10 12 16 / 0.06)) var(--when-dark, rgb(0 0 0 / 0.32)), 0 1px 3px var(--when-light, rgb(10 12 16 / 0.05)) var(--when-dark, rgb(0 0 0 / 0.28));
+  --shadow-md: 0 12px 28px -12px var(--when-light, rgb(10 12 16 / 0.3)) var(--when-dark, rgb(0 0 0 / 0.6));
+  --shadow-lg: 0 28px 60px -18px var(--when-light, rgb(10 12 16 / 0.45)) var(--when-dark, rgb(0 0 0 / 0.7));
+  /* La vignette qu'on survole se soulève de son rang. */
+  --shadow-lift: 0 18px 30px -18px var(--when-light, rgb(10 12 16 / 0.55)) var(--when-dark, rgb(0 0 0 / 0.8));
+  --shadow-bar: 0 -10px 24px -16px var(--when-light, rgb(10 12 16 / 0.35)) var(--when-dark, rgb(0 0 0 / 0.6));
+
+  /* --- espace et gabarit --- */
+  /* Le gabarit, marges comprises : la largeur que le site prenait déjà sur
+     un grand écran, atteinte désormais sans palier (voir base/page.css). */
+  --container-max: 1536px;
+  --container-pad: 16px;
+  --section-gap: 56px;
+  --header-height: 60px;
+  --tranche-height: 6px;
+
+  /* --- couches --- */
+  --layer-header: 40;
+  --layer-popover: 50;
+  --layer-bar: 60;
+
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+
+  /* --- mouvement : les moments forts (holo, tampons, dépôt, vente) ---
+     Des cubic-bezier et non linear(), que Safari 16.4 — le socle — ne lit
+     pas. Le mouvement réduit les coupe tous (base/page.css) ; un mouvement
+     piloté en JavaScript lit aussi prefers-reduced-motion. */
+  --duration-slow: 420ms;
+  --duration-hero: 900ms;
+  --stagger: 45ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --container-pad: 24px;
+    --logo-text: 24px;
+    --logo-width: 118;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --container-pad: 32px;
+    --section-gap: 80px;
+    --header-height: 64px;
+  }
+}
+
+/* Écrans larges gamut : on gagne en saturation sans changer la couleur perçue
+   sur les écrans sRGB, qui gardent les valeurs hexadécimales ci-dessus. Les
+   couples texte/fond, mesurés en sRGB, restent valables : la clarté ne bouge
+   pas, seule la saturation monte. Les couleurs de jeu ne changent pas avec
+   le thème : ce bloc non plus. */
+@supports (color: color(display-p3 1 1 1)) {
+  @media (color-gamut: p3) {
+    :root {
+      --pokemon: color(display-p3 0.918 0.629 0.09);
+      --magic: color(display-p3 0.169 0.388 0.906);
+      --onepiece: color(display-p3 0.79 0.09 0.24);
+      --lorcana: color(display-p3 0.588 0.061 0.654);
+      --yugioh: color(display-p3 0.64 0.45 0.99);
+      --riftbound: color(display-p3 0.12 0.78 0.725);
+      --naruto: color(display-p3 0.055 0.635 0.278);
+      /* Un neutre ne gagne rien en saturation : sa conversion exacte. */
+      --other: color(display-p3 0.387 0.399 0.421);
+    }
+  }
+}
+
+/* --- la bascule ---
+   Le thème sombre s'allume de deux façons : imposé par un choix explicite
+   (data-theme, posé par le script de <head>), ou suivi sur le réglage de
+   l'appareil quand aucun choix clair n'est imposé. Les valeurs ne sont
+   écrites qu'une fois, plus haut : ces deux blocs ne font que basculer les
+   interrupteurs. Sans JavaScript — script bloqué, page d'erreur racine qui
+   n'a pas notre <head> — la media query suffit. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --when-light: ;
+  --when-dark: initial;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --when-light: ;
+    --when-dark: initial;
+  }
+}
+
+/* À l'impression, toujours le clair : le navigateur n'imprime pas les fonds
+   par défaut, et une fiche en sombre sortirait en craie sur papier blanc.
+   :not(#print) ne vise rien de particulier — il porte la spécificité d'un
+   identifiant, de quoi passer devant les deux bascules ci-dessus. */
+@media print {
+  :root:not(#print) {
+    color-scheme: light;
+    --when-light: initial;
+    --when-dark: ;
+  }
+}

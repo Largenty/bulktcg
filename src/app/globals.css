@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* Les classes de base BulkTCG, direction « Gradé » : tout ce qui se répète
+   d'un composant à l'autre — boutons, champs, pastilles, surfaces — et les
+   motifs propres au produit : la vignette en étiquette de carte gradée, la
+   tranche aux couleurs des jeux, le sceau holographique, les tampons.
+
+   L'ordre de ces imports est celui de la cascade. Elles formaient un seul
+   fichier de 1 848 lignes, découpé sans qu'aucune règle ne change de place :
+   chaque feuille garde sa couche — les règles de @layer components cèdent
+   aux utilitaires, celles laissées hors couche l'emportent sur eux, et
+   l'en-tête de chaque feuille dit laquelle. tests/stylesheets.test.mjs
+   refuse une feuille qui ne serait pas importée ici. */
+@import "../styles/base/page.css";
+@import "../styles/base/typography.css";
+@import "../styles/base/emblems.css";
+@import "../styles/base/controls.css";
+@import "../styles/base/lot.css";
+@import "../styles/base/lot-wide.css";
+@import "../styles/base/want.css";
+@import "../styles/base/placement.css";
+@import "../styles/base/photo.css";
+@import "../styles/base/overlays.css";
+@import "../styles/base/sector-map.css";
+@import "../styles/base/account.css";
+
+/* Les utilitaires de Tailwind dont le nom existe aussi dans les tokens
+   suivent les tokens : font-body (ListingTags), et rounded-md, qui prendrait
+   sinon en silence le rayon par défaut de Tailwind (6 px au lieu de 4).
+   Les couleurs n'y sont plus : aucun composant n'écrivait text-muted ou
+   bg-card — tous passent par text-[var(--muted)], dont
+   tests/typography.test.mjs vérifie que le token existe. */
+@theme inline {
+  --font-heading: var(--font-heading);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}

@@ -1,0 +1,117 @@
+/* Les emblèmes du produit : la tranche aux couleurs des jeux, le
+   holographique de la mise en avant, l'étiquette « Urgent » et les tampons
+   « Vendu » et « Réservé ». */
+
+@layer components {
+
+/* ---------- la tranche : tous les jeux, une brique ----------
+   Vue de côté, une brique de bulk, ce sont des tranches de cartes serrées.
+   La bande aux couleurs des jeux est la signature du site : sous l'en-tête,
+   en tête du pied de page, sur les faces du logo. Chaque segment reçoit sa
+   couleur du composant Tranche, qui lit les jeux nommés de GAME_IDS : le
+   nombre de colonnes suit. */
+
+.tranche {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  height: var(--tranche-height);
+}
+
+/* ---------- holographique ----------
+   Réservé à la mise en avant payée, et réduit à deux gestes : le sceau
+   « À la une », et une bande sur le bord d'une surface — comme l'hologramme
+   de sécurité d'un boîtier. Jamais un aplat : un pavé holo de 300 px
+   éblouirait, et la mise en avant perdrait sa rareté. */
+
+.seal {
+  display: inline-block;
+  padding: 6px 9px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--foil-shine), var(--foil);
+  background-size: 250% 100%, 100% 100%;
+  background-position: 0 0, 0 0;
+  color: var(--foil-ink);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 104;
+  font-weight: 800;
+  font-size: var(--text-xs);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 rgb(10 12 16 / 0.35), inset 0 0 0 1px rgb(255 255 255 / 0.55);
+  transition: background-position 700ms ease-out;
+}
+
+/* Surface bordée de holo : l'option « Mettre à la une » du dépôt, l'encart
+   maison. La bande est sur le bord haut, sans texte. */
+.foil-panel {
+  position: relative;
+  background: var(--card);
+  border: var(--border-width-strong) solid var(--frame);
+  border-radius: var(--radius-lg);
+}
+.foil-panel::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--border-width-strong)) calc(-1 * var(--border-width-strong)) auto;
+  height: 7px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--foil-shine), var(--foil);
+  background-size: 250% 100%, 100% 100%;
+}
+
+/* ---------- « Urgent » ----------
+   L'option qui dit qu'on veut vendre vite : une étiquette rouge, posée de
+   biais comme une gommette de brocante. Le rouge de sens, avec son encre
+   compagnon, mesurés par l'audit dans les deux thèmes. */
+
+.urgent-flag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 8px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--danger);
+  color: var(--danger-ink);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 96;
+  font-weight: 800;
+  font-size: var(--text-xs);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  rotate: -3deg;
+  box-shadow: 0 2px 0 rgb(10 12 16 / 0.35);
+}
+
+/* ---------- tampons ----------
+   L'état écrit en toutes lettres, posé de biais sur la photo, comme le
+   tampon d'une brocante : « Vendu », « Réservé ». */
+
+.stamp {
+  display: inline-block;
+  padding: 7px 14px 6px;
+  border: 3px solid currentColor;
+  border-radius: var(--radius-sm);
+  background: var(--stamp-bg);
+  box-shadow: inset 0 0 0 2px var(--stamp-bg), inset 0 0 0 3px currentColor;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 112;
+  font-weight: 800;
+  font-size: var(--text-xl);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  rotate: -8deg;
+}
+.stamp-sold {
+  color: var(--ink);
+}
+.stamp-reserved {
+  color: var(--status-reserved);
+}
+
+}
